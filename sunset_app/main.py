@@ -22,42 +22,43 @@ def sunset_from_lonlat(lonlat: tuple, today) -> dict:
     # URL = f"https://api.sunrisesunset.io/json?lat={lat}&lng={lon}&date={date}"
 
     URL = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
-    URL += f"&hourly=temperature_2m,precipitation_probability,visibility,windspeed_10m,soil_moisture_0_1cm"
+    URL += f"&hourly=temperature_2m,precipitation_probability,visibility,windspeed_10m,windspeed_80m,soil_moisture_0_1cm"
     URL += f"&daily=sunset&timezone=GMT&forecast_days=2"
     r = requests.get(url=URL)
     data = r.json()
-    #sunset = (data['results']['sunset'])
     i = 0
-    fortnight = {}
-    #print(data['daily']['time'])
-    
+    fortnight_dict = {}
+   
     for time in (data['daily']['time']):
-
         sunsetlist = (data['daily']['sunset'])
-        dict_key = (sunsetlist[i]).replace("T", "")
-        fortnight[dict_key] = ""
-        #sunset = f"{data['daily']['sunset'][i]}"
-        i += 1
-    for key, val in fortnight.items():
-        date = datetime.strptime(key, "%Y-%m-%d%H:%M")
-        x = 0
-        for time in (data['hourly']['time']):
-            time = time.replace("T", "")
-            time = datetime.strptime(time, "%Y-%m-%d%H:%M")
-            if (time.day == date.day) and (time.hour in range ((date.hour) -2, (date.hour +1))):
-                fortnight[key] = (
-                    str(date),
-                    data['hourly']['temperature_2m'][x],
-                    data['hourly']['precipitation_probability'][x],
-                    data['hourly']['visibility'][x],
-                    data['hourly']['windspeed_10m'][x],
-                    data['hourly']['soil_moisture_0_1cm'][x]
-                )       
-            x += 1
+        sunset_datetime = datetime.fromisoformat(sunsetlist[i])
+        fortnight_dict[sunset_datetime] = ""
 
-        for key, val in fortnight.items():
-            print(f'{key} - {val}')
-        
+        hours_datetime = [datetime.fromisoformat(hour) for hour in (data['hourly']['time'])]
+
+        lower_limit = sunset_datetime - timedelta(hours=2)
+        upper_limit = sunset_datetime + timedelta(hours=1)
+
+        print(sunset_datetime)
+
+        indexes_of_interest = [
+            i for i, hour in enumerate(hours_datetime)
+            if hour > lower_limit and hour < upper_limit
+        ]
+
+        weather = [
+            (data['hourly']['temperature_2m'][i],
+            data['hourly']['precipitation_probability'][i],
+            data['hourly']['visibility'][i],
+            data['hourly']['windspeed_10m'][i],
+            data['hourly']['windspeed_80m'][i],
+            data['hourly']['soil_moisture_0_1cm'][i])
+            for i in indexes_of_interest
+        ]
+        print(weather) 
+     #print(fortnight_dict)       
+
+      
     #for item in (data['hourly']):
     #   print(item[0])
 
