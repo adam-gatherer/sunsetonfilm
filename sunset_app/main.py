@@ -62,6 +62,7 @@ def sunset_from_lonlat(lonlat: tuple, today) -> dict:
         #avg_moist = 0
 
         data_list = [
+            data['hourly']['time'][i],
             avg_temp := 0,
             avg_precip := 0,
             avg_vis := 0,
@@ -73,17 +74,22 @@ def sunset_from_lonlat(lonlat: tuple, today) -> dict:
         x = 1
         d = 0
         for weather in weather_list:
-            data_list[0] += weather[1]
-            data_list[1] += weather[2]
-            data_list[2] += weather[3]
-            data_list[3] += weather[4]
-            data_list[4] += weather[5]
-            data_list[5] += weather[6]
-            #for c in range(0, 6):
-            #    data_list[c] += weather[c+1]
-        
-        for data in data_list:
-            print(data)
+            #data_list[0] += weather[1]
+            #data_list[1] += weather[2]
+            #data_list[2] += weather[3]
+            #data_list[3] += weather[4]
+            #data_list[4] += weather[5]
+            #data_list[5] += weather[6]
+            for c in range(1, 7):
+                data_list[c] += weather[c]
+                #data_list[c] = round(data_list[c], 2)
+
+        for data_entry in data_list:
+            if type(data_entry) == float:
+                data_entry = data_entry / len(weather_list)
+
+
+        print(data_list)
 
 
 
