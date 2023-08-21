@@ -2,6 +2,7 @@ import requests
 import json
 from datetime import timedelta, date, datetime
 
+
 def lonlat_from_postcode(postcode: str) -> tuple[float, float]:
     URL = "https://api.postcodes.io/postcodes/" + postcode
     r = requests.get(url=URL)
@@ -11,16 +12,10 @@ def lonlat_from_postcode(postcode: str) -> tuple[float, float]:
         lat = data['result']['latitude']
         return float(long), float(lat)
 
+
 def sunset_from_lonlat(lonlat: tuple, today) -> dict:
     lon = lonlat[0]
     lat = lonlat[1]
-        
-    # https://api.sunrisesunset.io/json?lat=38.907192&lng=-77.036873&timezone=UTC&date=1990-05-22
-    # https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41
-    # &hourly=temperature_2m,precipitation_probability,visibility,windspeed_10m,soil_moisture_0_1cm
-    # &daily=sunset&timezone=GMT&forecast_days=14
-    # URL = f"https://api.sunrisesunset.io/json?lat={lat}&lng={lon}&date={date}"
-
     URL = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
     URL += f"&hourly=temperature_2m,precipitation_probability,visibility,windspeed_10m,windspeed_80m,soil_moisture_0_1cm"
     URL += f"&daily=sunset&timezone=GMT&forecast_days=2"
@@ -46,8 +41,10 @@ def sunset_from_lonlat(lonlat: tuple, today) -> dict:
             if hour > lower_limit and hour < upper_limit
         ]
 
-        weather = [
-            (data['hourly']['temperature_2m'][i],
+       
+        weather_list = [
+            (data['hourly']['time'][i],
+            data['hourly']['temperature_2m'][i],
             data['hourly']['precipitation_probability'][i],
             data['hourly']['visibility'][i],
             data['hourly']['windspeed_10m'][i],
@@ -55,26 +52,41 @@ def sunset_from_lonlat(lonlat: tuple, today) -> dict:
             data['hourly']['soil_moisture_0_1cm'][i])
             for i in indexes_of_interest
         ]
-        print(weather) 
-     #print(fortnight_dict)       
 
-      
-    #for item in (data['hourly']):
-    #   print(item[0])
+        
+        #avg_temp = 0
+        #avg_precip = 0
+        #avg_vis = 0
+        #avg_wind10 = 0
+        #avg_wind80 = 0
+        #avg_moist = 0
+
+        data_list = [
+            avg_temp := 0,
+            avg_precip := 0,
+            avg_vis := 0,
+            avg_wind10 := 0,
+            avg_wind80 := 0,
+            avg_moist := 0
+        ]
+        
+        x = 1
+        d = 0
+        for weather in weather_list:
+            data_list[0] += weather[1]
+            data_list[1] += weather[2]
+            data_list[2] += weather[3]
+            data_list[3] += weather[4]
+            data_list[4] += weather[5]
+            data_list[5] += weather[6]
+            #for c in range(0, 6):
+            #    data_list[c] += weather[c+1]
+        
+        for data in data_list:
+            print(data)
+
+
 
 lonlat = (-3.251163, 55.977057)
-
 today = (date.today())
-
 sunset_from_lonlat(lonlat, today)
-
-#time1 = "2023-08-16T19:48"
-#time1 = time1.replace("T", "")
-#time1 = datetime.strptime(time1, "%Y-%m-%d%H:%M")
-#timelist = ["2023-08-16T16:00", "2023-08-16T17:00", "2023-08-16T18:00", "2023-08-16T19:00", "2023-08-16T20:00", "2023-08-16T21:00", "2023-08-16T22:00"]
-
-#for time in timelist:
-#    time = time.replace("T", "")
-#    time = datetime.strptime(time, "%Y-%m-%d%H:%M")
-#    if time.hour in range((time1.hour)-2,time1.hour+1) :
-#        print(time)    
