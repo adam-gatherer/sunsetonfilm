@@ -97,4 +97,10 @@ lonlat = (-3.251163, 55.977057)
 today = (date.today())
 fortnight_dict = sunset_from_lonlat(lonlat, today)
 
+for key, val in fortnight_dict.items():
+    if val[1] < 20:
+        #print(f'{key} : {val[0]}°C, {val[1]}% chance of rain')
+        print(f'{key.strftime("%b %d (%a): %H:%M%p")} ({val[0]}°C, {val[1]}% rain)')
+        
+
 #find_good_dates(fortnight_dict)
